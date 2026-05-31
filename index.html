@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32-CAM: The Complete Technical Manual</title>
+    <link rel="stylesheet" href="presentation/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github-dark.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <style>
+        .code-container {
+            position: relative;
+            margin: 2rem 0;
+        }
+        .code-header {
+            background: var(--border);
+            padding: 0.5rem 1rem;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--accent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .code-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .zoom-btn {
+            background: var(--bg-dark);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            border-radius: 4px;
+            padding: 2px 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .zoom-btn:hover {
+            background: var(--accent);
+            color: var(--bg-dark);
+        }
+        .code-container pre {
+            margin-top: 0 !important;
+            border-top-left-radius: 0 !important;
+            border-top-right-radius: 0 !important;
+            max-height: 500px;
+            overflow-y: auto;
+            overflow-x: auto;
+            max-width: 100%;
+        }
+        .conversational-text {
+            line-height: 1.8;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+        .bullet-summary {
+            background: rgba(0, 229, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px dashed var(--accent);
+            margin: 2rem 0;
+        }
+        .bullet-summary h4 {
+            margin-top: 0;
+            color: var(--accent);
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <h1>ESP32-CAM Manual</h1>
+        <ul>
+            <li><a href="#intro" class="active">0. Welcome</a></li>
+            <li><a href="#specs">1. Hardware Specs</a></li>
+            <li><a href="#setup">2. Getting Started</a></li>
+            <li><a href="#storage">3. SD Card Capture</a></li>
+            <li><a href="#motion">4. Motion & Sleep</a></li>
+            <li><a href="#vision">5. AI Integration</a></li>
+            <li><a href="#debug">6. Pro Tips</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <!-- Section 0: Intro -->
+        <section id="intro">
+            <div class="module-header">
+                <span class="module-number">00</span>
+                <h2>Welcome to the Guide</h2>
+            </div>
+            <div class="conversational-text">
+                <p>Building with the ESP32-CAM can be both rewarding and frustrating. It's an incredibly powerful tool for its price, but it's notorious for power issues and "quirky" hardware behavior. In this manual, we're not just looking at snippets; we're diving into the full implementation details that make a professional IoT camera project work.</p>
+            </div>
+            <div class="bullet-summary">
+                <h4>Key Takeaways</h4>
+                <ul>
+                    <li>Learn to handle the OV2640 sensor like a pro.</li>
+                    <li>Master local storage with SD cards and filename persistence.</li>
+                    <li>Enable ultra-low power motion detection.</li>
+                    <li>Bridge the gap between embedded C++ and Python AI.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Section 1: Specs -->
+        <section id="specs">
+            <div class="module-header">
+                <span class="module-number">01</span>
+                <h2>Hardware Capabilities</h2>
+            </div>
+            <div class="conversational-text">
+                <p>Before writing a single line of code, you need to understand the beast. The ESP32-CAM isn't just an ESP32 with a camera tacked on; it's a carefully balanced system where pins are shared and power is precious. The OV2640 sensor provides hardware JPEG encoding, which is the secret sauce that allows such a small chip to handle 2MP images.</p>
+            </div>
+
+            <div class="image-container">
+                <img src="ESP32-Cam - Complete Guide - DIY Engineers_files/ESP32-Cam-Pins.png" alt="ESP32-Cam Pinout">
+                <div class="image-caption">Detailed pinout diagram for the ESP32-CAM module.</div>
+            </div>
+
+            <div class="grid-container">
+                <div class="tech-card">
+                    <h3>The Sensor: OV2640</h3>
+                    <ul class="spec-list">
+                        <li><span class="spec-label">Resolution</span> <span class="spec-value">2.0 Megapixel</span></li>
+                        <li><span class="spec-label">Format</span> <span class="spec-value">UXGA (1600x1200)</span></li>
+                        <li><span class="spec-label">Encoding</span> <span class="spec-value">Hardware JPEG</span></li>
+                    </ul>
+                </div>
+                <div class="tech-card">
+                    <h3>The Brain: ESP32-S</h3>
+                    <ul class="spec-list">
+                        <li><span class="spec-label">Cores</span> <span class="spec-value">Dual-core 32-bit</span></li>
+                        <li><span class="spec-label">Memory</span> <span class="spec-value">4MB PSRAM + 520KB SRAM</span></li>
+                        <li><span class="spec-label">Radio</span> <span class="spec-value">WiFi + BT 4.2</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="grid-container" style="grid-template-columns: 1fr 1fr; margin-top: 1.5rem;">
+                <div class="image-container">
+                    <img src="ESP32-Cam - Complete Guide - DIY Engineers_files/ESP32-Cam-Front.png" alt="ESP32-Cam Front">
+                    <div class="image-caption">Front view: Camera connector, LED flash, and SD slot.</div>
+                </div>
+                <div class="image-container">
+                    <img src="ESP32-Cam - Complete Guide - DIY Engineers_files/ESP32-Cam-Back.png" alt="ESP32-Cam Back">
+                    <div class="image-caption">Back view: ESP32-S module and internal antenna.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Setup -->
+        <section id="setup">
+            <div class="module-header">
+                <span class="module-number">02</span>
+                <h2>Environment Setup</h2>
+            </div>
+            <div class="conversational-text">
+                <p>The most common hurdle is simply getting the code onto the board. Since the ESP32-CAM doesn't have a USB port, you'll need an FTDI adapter. Remember: <strong>IO0 must be grounded during boot</strong> to enter flashing mode. If you forget this, the Arduino IDE will just time out repeatedly.</p>
+            </div>
+
+            <div class="image-container">
+                <img src="ESP32-Cam - Complete Guide - DIY Engineers_files/ESP32-Cam-to-FTDI-2.png" alt="FTDI Wiring Diagram">
+                <div class="image-caption">Wiring the ESP32-CAM to an FTDI adapter for programming.</div>
+            </div>
+
+            <div class="bullet-summary">
+                <h4>IDE Checklist</h4>
+                <ul>
+                    <li><strong>Board:</strong> AI Thinker ESP32-CAM</li>
+                    <li><strong>Partition Scheme:</strong> Huge APP (3MB No OTA) - essential for large camera libraries.</li>
+                    <li><strong>FTDI Voltage:</strong> 5V (Don't use 3.3V for flashing).</li>
+                </ul>
+            </div>
+
+            <div class="grid-container">
+                <div class="image-container">
+                    <img src="ESP32-Cam - Complete Guide - DIY Engineers_files/Arduino-IDE-Preferences.png" alt="Arduino IDE Preferences">
+                    <div class="image-caption">Adding the ESP32 board URL to Preferences.</div>
+                </div>
+                <div class="image-container">
+                    <img src="ESP32-Cam - Complete Guide - DIY Engineers_files/Select-Board.png" alt="Select Board in Arduino">
+                    <div class="image-caption">Selecting the AI Thinker ESP32-CAM board.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Storage -->
+        <section id="storage">
+            <div class="module-header">
+                <span class="module-number">03</span>
+                <h2>SD Card Capture</h2>
+            </div>
+            <div class="conversational-text">
+                <p>In this module, we look at how to capture a photo and save it to a microSD card. We use the EEPROM to remember which number we're on, so every time the device reboots, it doesn't just overwrite "photo1.jpg". Also, pay attention to the "Double Capture" logic below—it's the only way to get a properly exposed photo.</p>
+            </div>
+
+            <div class="image-container">
+                <img src="ESP32-Cam - Complete Guide - DIY Engineers_files/SD-Card-Saving-Process-1024x392.png" alt="SD Card Saving Process">
+                <div class="image-caption">Workflow for capturing and storing images on the SD card.</div>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">
+                    <span>save-photos.cpp</span>
+                    <div class="code-controls">
+                        <button class="zoom-btn" onclick="zoomCode('code-save-photos', -1)">-</button>
+                        <button class="zoom-btn" onclick="zoomCode('code-save-photos', 1)">+</button>
+                        <span style="margin-left: 10px; opacity: 0.7;">Source: Local File</span>
+                    </div>
+                </div>
+                <pre><code class="language-cpp" id="code-save-photos">Loading source code...</code></pre>
+            </div>
+        </section>
+
+        <!-- Section 4: Motion -->
+        <section id="motion">
+            <div class="module-header">
+                <span class="module-number">04</span>
+                <h2>Motion Detection & Deep Sleep</h2>
+            </div>
+            <div class="conversational-text">
+                <p>If you want your camera to run on a battery, you can't leave it on all the time. We use a PIR sensor to "wake up" the ESP32 from Deep Sleep. The board consumes almost no power while sleeping, but springs to life in milliseconds when motion is detected. We use <code>RTC_DATA_ATTR</code> to keep track of variables even while the main CPU is powered off.</p>
+            </div>
+
+            <div class="image-container">
+                <img src="ESP32-Cam - Complete Guide - DIY Engineers_files/Example-Process.png" alt="Motion Detection Workflow">
+                <div class="image-caption">Logic flow for motion-triggered image capture.</div>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">
+                    <span>pir-sensor.cpp</span>
+                    <div class="code-controls">
+                        <button class="zoom-btn" onclick="zoomCode('code-pir-sensor', -1)">-</button>
+                        <button class="zoom-btn" onclick="zoomCode('code-pir-sensor', 1)">+</button>
+                        <span style="margin-left: 10px; opacity: 0.7;">Source: Local File</span>
+                    </div>
+                </div>
+                <pre><code class="language-cpp" id="code-pir-sensor">Loading source code...</code></pre>
+            </div>
+        </section>
+
+        <!-- Section 5: Vision -->
+        <section id="vision">
+            <div class="module-header">
+                <span class="module-number">05</span>
+                <h2>The AI Pipeline (Python)</h2>
+            </div>
+            <div class="conversational-text">
+                <p>The ESP32 is great, but it's not quite a supercomputer. For heavy lifting like real-time object detection (recognizing people, cars, or cats), we stream the video to a Python script. Using OpenCV and <code>cvlib</code>, we can turn a simple security camera into an intelligent monitoring system.</p>
+            </div>
+
+            <div class="image-container">
+                <img src="ESP32-Cam - Complete Guide - DIY Engineers_files/CV_Test_Result2.png" alt="OpenCV Object Detection Result">
+                <div class="image-caption">Real-time object detection processed via the Python pipeline.</div>
+            </div>
+
+            <div class="image-container">
+                <img src="ESP32-Cam - Complete Guide - DIY Engineers_files/Anaconda-Download-1024x326.png" alt="Anaconda Download">
+                <div class="image-caption">Download Anaconda to set up your Python environment for AI.</div>
+            </div>
+
+            <div class="bullet-summary">
+                <h4>Python Requirements</h4>
+                <ul>
+                    <li><code>pip install opencv-contrib-python</code></li>
+                    <li><code>pip install requests</code></li>
+                    <li><code>pip install cvlib</code></li>
+                    <li><code>pip install tensorflow</code></li>
+                    <li><code>pip install matplotlib</code></li>
+                </ul>
+            </div>
+
+            <div class="code-container">
+                <div class="code-header">
+                    <span>camera.py</span>
+                    <div class="code-controls">
+                        <button class="zoom-btn" onclick="zoomCode('code-camera', -1)">-</button>
+                        <button class="zoom-btn" onclick="zoomCode('code-camera', 1)">+</button>
+                        <span style="margin-left: 10px; opacity: 0.7;">Source: Local File</span>
+                    </div>
+                </div>
+                <pre><code class="language-python" id="code-camera">Loading source code...</code></pre>
+            </div>
+        </section>
+
+        <!-- Section 6: Debug -->
+        <section id="debug">
+            <div class="module-header">
+                <span class="module-number">06</span>
+                <h2>Troubleshooting & Pro Tips</h2>
+            </div>
+            <div class="conversational-text">
+                <p>Still having trouble? You're not alone. Most issues with the ESP32-CAM boil down to power. When the WiFi or Flash LED kicks in, the power demand spikes. If your power supply can't keep up, the voltage drops and the chip resets—this is the "Brownout" error.</p>
+            </div>
+
+            <div class="image-container" style="max-width: 500px; margin-left: auto; margin-right: auto;">
+                <img src="ESP32-Cam - Complete Guide - DIY Engineers_files/Disconnect-IO0.png" alt="Normal Operation Mode">
+                <div class="image-caption">Don't forget to disconnect IO0 for normal operation!</div>
+            </div>
+            <div class="bullet-summary">
+                <h4>The Pro Checklist</h4>
+                <ul>
+                    <li><strong>Image is green/dark:</strong> Add a 1000ms delay between your first and second capture.</li>
+                    <li><strong>Serial "Brownout" error:</strong> Add <code>WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0);</code> to your setup.</li>
+                    <li><strong>SD Card fail:</strong> Ensure it's formatted to FAT32 and is 4GB or less for best compatibility.</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <script src="presentation/script.js"></script>
+</body>
+</html>
